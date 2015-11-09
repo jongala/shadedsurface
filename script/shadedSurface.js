@@ -23,6 +23,7 @@ var ShadedSurface = function(options, lightDefs) {
         cellsize: 100,
         jitter: 0.33,
         depth: 20,
+        depthTransform: null,
         materialAmbient: '#FFFFFF',
         materialDiffuse: '#FFFFFF',
         renderWith: 'svg'
@@ -159,13 +160,14 @@ ShadedSurface.prototype.distortMesh = function(depthTransform) {
         vertex,
         jitter = this.options.jitter,
         depth = this.options.depth,
-        dt = depthTransform || function(){return 0;};
+        dt = depthTransform || function(x, y, d) {
+            return Math.randomInRange(-d, d);
+        };
     for (v = Mesh.geometry.vertices.length - 1; v >= 0; v--) {
       vertex = Mesh.geometry.vertices[v];
       vertex.position[0] = Math.round(vertex.position[0] + Math.randomInRange(-jitter, jitter));
       vertex.position[1] = Math.round(vertex.position[1] + Math.randomInRange(-jitter, jitter));
-      vertex.position[2] = Math.randomInRange(-depth, depth) +
-        dt(vertex.position[0], vertex.position[1], depth);
+      vertex.position[2] = dt(vertex.position[0], vertex.position[1], depth);
     }
     Mesh.geometry.dirty = true;
     return this;
