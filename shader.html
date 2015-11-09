@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Shader</title>
+        <style type="text/css">
+            body {
+                font-family: sans-serif;
+                background: #eee;
+                color: #333;
+                margin: 0;
+                padding: 3em;
+            }
+            #shadeMe {
+                height: 800px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="header">
+            <div class="header_content">
+                <h1 id="logo">
+                  <a href="/event/stream">Datadog</a>
+                </h1>
+            <!--header_content--></div>
+        <!--header--></div>
+
+        <div class="page clearfix">
+        	<div class="panel" id="shadeMe">
+
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipscing elit, sed diam nonomy eiusmod tempor incidunt ut labore et dolore magna aliquam erat volupat. </p>
+
+                <p>Ut enim ad minimum veniami quis nosstrud exercitation ullamcorpor suscipit laboris nisi ut aliquip ex ea commodoconsequat. Duis autem vel eum irure dolor in reprehenderit in voluptate velit esse molestaie son consequat, vel illum dolore eu fugiat nulla pariatur.</p>
+
+
+
+
+
+
+
+
+            <!-- .panel --></div>
+        <!-- #page --></div>
+
+        <div class="version_number">Copyright Datadog, Inc. 2011 - 5.0-0 -
+        <a href="/policy/terms">Terms of Use</a> -
+        <a href="/policy/privacy">Privacy Policy</a></div>
+
+        <script src="script/fss.js"></script>
+        <script src="script/shadedSurface.js"></script>
+
+        <script>
+            var dogHeight = 100,
+                spotHeightCoef = 1.5;
+
+            var loginLights = [
+                {
+                    // dog
+                    ambient: '#20292f',
+                    diffuse: '#256d94',
+                    x: -240,
+                    y: function(w, h) {return h / 2 - 150;},
+                    z: function(w, h) {return dogHeight * w/1300},
+                    start: {
+                        x: function(w, h) {return w/2;},
+                        y: function(w, h) {return h/2;},
+                        z: 0
+                    }
+
+                },
+                {
+                    // pink spot
+                    ambient: '#000000',
+                    diffuse: '#990058',
+                    x: function(w, h) {return w / 2 - 10;},
+                    y: 0,
+                    z: function(w, h) {return dogHeight * spotHeightCoef * w/1300},
+                    start: {
+                        x: function(w, h) {return w/2;},
+                        y: function(w, h) {return -h/2;},
+                        z: 0
+                    }
+                }
+            ];
+
+            loginSurface = new ShadedSurface({
+                container: '#shadeMe',
+                cellsize: 80,
+                jitter: 0.3,
+                depth: 2.5,
+                materialAmbient: '#777777',
+                materialDiffuse: '#bbbbbb',
+                renderWith: 'canvas'
+            }, loginLights);
+
+            loginSurface.initialize()
+                .resize()
+                .draw()
+                .dark()
+                .lightUp();
+
+            inspect = function() {
+                vertices = loginSurface.scene.meshes[0].geometry.vertices;
+                v = vertices[Math.floor(vertices.length/3)];
+                console.log(v.position);
+            }
+
+            ShadedSurface.prototype.shimmer = function(play) {
+                var self = this;
+                function do_shimmer() {
+                    if (self.playing) {
+                        self.resize().draw();
+                        window.requestAnimationFrame(do_shimmer);
+                    }
+                }
+                this.playing = play !== false;
+                if (this.playing) do_shimmer();
+            }
+
+        </script>
+
+    </body>
+</html>
