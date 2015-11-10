@@ -26,6 +26,9 @@ var ShadedSurface = function(options, lightDefs) {
         depthTransform: null,
         materialAmbient: '#FFFFFF',
         materialDiffuse: '#FFFFFF',
+        fillOpacity: 1,
+        strokeOpacity: 1,
+        strokeWidth: 1,
         renderWith: 'svg'
     },
     Renderer,
@@ -54,6 +57,9 @@ var ShadedSurface = function(options, lightDefs) {
 
     // convert jitter to px based on cellsize
     this.options.jitter = this.options.jitter * this.options.cellsize;
+
+    // Black background before lights come up
+    this.options.$container.style.backgroundColor = "#000";
 
     Renderer = (this.options.renderWith === "svg")? FSS.SVGRenderer : FSS.CanvasRenderer;
     this.renderer = new Renderer();
@@ -141,7 +147,8 @@ ShadedSurface.prototype.makeMesh = function(geometry, material) {
             );
     }
     if (!material) {
-        material = new FSS.Material(this.options.materialAmbient, this.options.materialDiffuse);
+        material = new FSS.Material(this.options.materialAmbient, this.options.materialDiffuse,
+            this.options.fillOpacity, this.options.strokeOpacity, this.options.strokeWidth);
     }
     return new FSS.Mesh(geometry, material);
 };

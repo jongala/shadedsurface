@@ -11,20 +11,18 @@
                 margin: 0;
                 padding: 3em;
             }
+
+            .panel {
+                background: #fff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            }
+
             #shadeMe {
                 height: 800px;
             }
         </style>
     </head>
     <body>
-
-        <div class="header">
-            <div class="header_content">
-                <h1 id="logo">
-                  <a href="/event/stream">Datadog</a>
-                </h1>
-            <!--header_content--></div>
-        <!--header--></div>
 
         <div class="page clearfix">
         	<div class="panel" id="shadeMe">
@@ -43,10 +41,6 @@
 
             <!-- .panel --></div>
         <!-- #page --></div>
-
-        <div class="version_number">Copyright Datadog, Inc. 2011 - 5.0-0 -
-        <a href="/policy/terms">Terms of Use</a> -
-        <a href="/policy/privacy">Privacy Policy</a></div>
 
         <script src="script/fss.js"></script>
         <script src="script/shadedSurface.js"></script>
@@ -92,6 +86,9 @@
                 depth: 2.5,
                 materialAmbient: '#777777',
                 materialDiffuse: '#bbbbbb',
+                fillOpacity: 0.8,
+                strokeOpacity: 1,
+                strokeWidth: 1,
                 renderWith: 'canvas'
             }, loginLights);
 
