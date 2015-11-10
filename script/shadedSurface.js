@@ -61,7 +61,14 @@ var ShadedSurface = function(options, lightDefs) {
     // Black background before lights come up
     this.options.$container.style.backgroundColor = "#000";
 
-    Renderer = (this.options.renderWith === "svg")? FSS.SVGRenderer : FSS.CanvasRenderer;
+    Renderer = {
+        "svg": FSS.SVGRenderer,
+        "canvas": FSS.CanvasRenderer,
+        "webgl": FSS.WebGLRenderer
+    }[this.options.renderWith];
+    if (!Renderer) {
+        throw "Undefined Renderer; aborting";
+    }
     this.renderer = new Renderer();
     this.scene = new FSS.Scene();
 
