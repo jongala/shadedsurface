@@ -56,7 +56,7 @@ var ShadedSurface = function(options, lightDefs) {
     ws.right = 0 + "px";
 
     // convert jitter to px based on cellsize
-    this.options.jitter = this.options.jitter * this.options.cellsize;
+    this.options.distortion = this.options.jitter * this.options.cellsize;
 
     // Black background before lights come up
     this.options.$container.style.backgroundColor = "#000";
@@ -108,10 +108,10 @@ ShadedSurface.prototype.initialize = function() {
 
     var es = this.renderer.element.style;
     es.position = 'absolute';
-    es.top = -this.options.jitter + "px";
-    es.right = -this.options.jitter + "px";
-    es.bottom = -this.options.jitter + "px";
-    es.left = -this.options.jitter + "px";
+    es.top = -this.options.distortion + "px";
+    es.right = -this.options.distortion + "px";
+    es.bottom = -this.options.distortion + "px";
+    es.left = -this.options.distortion + "px";
 
     // handle window resizing
     var resizeHandler = function(e) {
@@ -131,8 +131,8 @@ ShadedSurface.prototype.initialize = function() {
 ShadedSurface.prototype.resize = function() {
     this.scene.meshes[0] = this.makeMesh();
     this.distortMesh(this.options.depthTransform);
-    this.renderer.setSize(this.options.$container.offsetWidth + 2 * this.options.jitter,
-            this.options.$container.offsetHeight + 2 * this.options.jitter);
+    this.renderer.setSize(this.options.$container.offsetWidth + 2 * this.options.distortion,
+            this.options.$container.offsetHeight + 2 * this.options.distortion);
     return this;
 };
 
@@ -147,8 +147,8 @@ ShadedSurface.prototype.makeMesh = function(geometry, material) {
         h = this.options.$container.offsetHeight;
     if (!geometry) {
         geometry = new FSS.Plane(
-            w + 2 * this.options.jitter,
-            h + 2 * this.options.jitter,
+            w + 2 * this.options.distortion,
+            h + 2 * this.options.distortion,
             Math.floor(w / this.options.cellsize),
             Math.floor(h / this.options.cellsize)
             );
@@ -162,7 +162,7 @@ ShadedSurface.prototype.makeMesh = function(geometry, material) {
 
 /**
  * Shift the positions of the vertices in the instance's mesh,
- * according to options.jitter for x and y, and options.depth for
+ * according to options.distortion for x and y, and options.depth for
  * z.  Also accepts a depthTransform function to allow setting depth based on
  * x and y position.
  *
@@ -172,15 +172,15 @@ ShadedSurface.prototype.distortMesh = function(depthTransform) {
     var Mesh = this.scene.meshes[0],
         v,
         vertex,
-        jitter = this.options.jitter,
+        distortion = this.options.distortion,
         depth = this.options.depth,
         dt = depthTransform || function(x, y, d) {
             return Math.randomInRange(-d, d);
         };
     for (v = Mesh.geometry.vertices.length - 1; v >= 0; v--) {
       vertex = Mesh.geometry.vertices[v];
-      vertex.position[0] = Math.round(vertex.position[0] + Math.randomInRange(-jitter, jitter));
-      vertex.position[1] = Math.round(vertex.position[1] + Math.randomInRange(-jitter, jitter));
+      vertex.position[0] = Math.round(vertex.position[0] + Math.randomInRange(-distortion, distortion));
+      vertex.position[1] = Math.round(vertex.position[1] + Math.randomInRange(-distortion, distortion));
       vertex.position[2] = dt(vertex.position[0], vertex.position[1], depth);
     }
     Mesh.geometry.dirty = true;
