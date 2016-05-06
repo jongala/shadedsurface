@@ -29,7 +29,8 @@ var ShadedSurface = function(options, lightDefs) {
         fillOpacity: 1,
         strokeOpacity: 1,
         strokeWidth: 1,
-        renderWith: 'svg'
+        renderWith: 'svg',
+        renderCallback: function(shadedSurfaceInstance){}
     },
     Renderer,
     self = this;
@@ -213,6 +214,7 @@ ShadedSurface.prototype.draw = function() {
 
     // render
     this.renderer.render(this.scene);
+    this.options.renderCallback(this);
     return this;
 };
 
