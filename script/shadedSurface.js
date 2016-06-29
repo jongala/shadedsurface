@@ -174,15 +174,17 @@ ShadedSurface.prototype.distortMesh = function(depthTransform) {
         v,
         vertex,
         distortion = this.options.distortion,
-        depth = this.options.depth,
-        dt = depthTransform || function(x, y, d) {
-            return Math.randomInRange(-d, d);
-        };
+        depth = this.options.depth;
+    var w = this.getWidth();
+    var h = this.getHeight();
+    var dt = depthTransform || function(x, y, d, w, h) {
+        return Math.randomInRange(-d, d);
+    };
     for (v = Mesh.geometry.vertices.length - 1; v >= 0; v--) {
       vertex = Mesh.geometry.vertices[v];
       vertex.position[0] = Math.round(vertex.position[0] + Math.randomInRange(-distortion, distortion));
       vertex.position[1] = Math.round(vertex.position[1] + Math.randomInRange(-distortion, distortion));
-      vertex.position[2] = dt(vertex.position[0], vertex.position[1], depth);
+      vertex.position[2] = dt(vertex.position[0], vertex.position[1], depth, w, h);
     }
     Mesh.geometry.dirty = true;
     return this;
