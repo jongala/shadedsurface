@@ -50,6 +50,7 @@
                 <button onClick="show(naturalWhite)">Natural White</button>
                 <button onClick="show(cream)">Cream</button>
                 <button onClick="show(slate)">Slate</button>
+                <button onClick="show(ocean)">Ocean</button>
             </div>
         <!-- #page --></div>
 
@@ -110,7 +111,7 @@
             };
 
             var naturalWhite = {
-                cellsize: 60,
+                cellsize: 50,
                 materialAmbient: '#d6d9df',
                 materialDiffuse: '#444444',
                 lights: [
@@ -127,9 +128,9 @@
             };
 
             var cream = {
-                cellsize: 60,
+                cellsize: 50,
                 materialAmbient: '#f0e9d0',
-                materialDiffuse: '#444444',
+                materialDiffuse: '#393939',
                 lights: [
                     {
                         ambient: '#d0d0d0',
@@ -151,10 +152,42 @@
                     {
                         ambient: '#ffffff',
                         diffuse: '#ffffff',
-                        x: 0,
+                        x: function(w, h) {return w/2},
                         y: function(w, h) {return h/2},
                         z: function(w, h) {
-                            return 300 * w/1300
+                            return 350 * w/1300
+                        }
+                    }
+                ]
+            };
+
+            var ocean = {
+                cellsize: 50,
+                depth: 3,
+                materialAmbient: '#002244',
+                materialDiffuse: '#ffffff',
+                depthTransform: function(x, y, d, w, h) {
+                    // calculate depth based on radius from center point
+                    var r = Math.sqrt( Math.pow(x - w/2, 2) + Math.pow(y - h/2, 2) );
+                    return d * Math.sin(r * Math.PI/150) + d * 0.2 * (Math.random() - 0.5);
+                },
+                lights: [
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#0099cc',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 350 * w/1300
+                        }
+                    },
+                    {
+                        ambient: '#cccccc',
+                        diffuse: '#ffffff',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
                         }
                     }
                 ]
