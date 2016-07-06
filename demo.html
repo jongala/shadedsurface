@@ -78,9 +78,7 @@
                 diffuse: '#ffcc00',
                 x: function(w, h) {return -w/2},
                 y: function(w, h) {return h/2},
-                z: function(w, h) {
-                    return 125 * w/1300
-                }
+                z: 125
             };
 
             var spot2 = {
@@ -88,9 +86,7 @@
                 diffuse: '#ff0099',
                 x: function(w, h) {return w/2},
                 y: function(w, h) {return h/2},
-                z: function(w, h) {
-                    return 125 * w/1300
-                }
+                z: 125
             };
 
             var spot3 = {
@@ -98,9 +94,7 @@
                 diffuse: '#3399cc',
                 x: function(w, h) {return -w/2},
                 y: function(w, h) {return -h/2},
-                z: function(w, h) {
-                    return 125 * w/1300
-                }
+                z: 125
             };
 
             var spot4 = {
@@ -108,9 +102,7 @@
                 diffuse: '#774aa4',
                 x: function(w, h) {return w/2},
                 y: function(w, h) {return -h/2},
-                z: function(w, h) {
-                    return 125 * w/1300
-                }
+                z: 125
             };
 
             // Surface Opts
@@ -207,49 +199,59 @@
             });
 
 
+            // utils for light controls
+            function setZ(light, z) {
+                light.z = z;
+                redraw();
+            }
+            function controlLight(folderName, light) {
+                var folder = gui.addFolder(folderName);
+                folder.addColor(light, 'diffuse')
+                    .name('color')
+                    .onChange(redraw);
+                folder.add(light, 'z').min(0).max(400)
+                    .name('height')
+                    .onChange(function(z){setZ(light, z)});
+                folder.open();
+            }
+
             // setup DAT.GUI
             var gui;
 
             window.addEventListener('load', function(e){
                 gui = new dat.GUI();
 
-                gui.add(opts, 'cellsize').min(20).max(200)
+                var mat = gui.addFolder('Surface');
+
+                mat.add(opts, 'cellsize').min(20).max(200)
                     .onChange(redraw);
 
-                gui.add(opts, 'jitter').min(0).max(0.5)
+                mat.add(opts, 'jitter').min(0).max(0.5)
                     .name('Distortion')
                     .onChange(redraw);
 
-                gui.add(opts, 'depth').min(0).max(10)
+                mat.add(opts, 'depth').min(0).max(10)
                     .name('Roughness')
                     .onChange(redraw);
 
-                gui.add(opts, 'fillOpacity').min(0).max(1)
+                mat.add(opts, 'fillOpacity').min(0).max(1)
                     .name('Faces')
                     .onChange(redraw);
 
-                gui.add(opts, 'strokeOpacity').min(0).max(1)
+                mat.add(opts, 'strokeOpacity').min(0).max(1)
                     .name('Edges')
                     .onChange(redraw);
 
-                var baseColor = gui.addFolder('Base Color');
-                baseColor.addColor(ambient, 'ambient')
-                    .onChange(redraw);
-                baseColor.open();
-
-                var spotColors = gui.addFolder('Spot Colors');
-                spotColors.addColor(spot1, 'diffuse').name('spot1')
-                    .onChange(redraw);
-                spotColors.addColor(spot2, 'diffuse').name('spot2')
-                    .onChange(redraw);
-                spotColors.addColor(spot3, 'diffuse').name('spot3')
-                    .onChange(redraw);
-                spotColors.addColor(spot4, 'diffuse').name('spot4')
+                mat.addColor(ambient, 'ambient')
+                    .name('Base color')
                     .onChange(redraw);
 
-                spotColors.open();
+                mat.open();
 
-
+                controlLight('Spot 1', spot1);
+                controlLight('Spot 2', spot2);
+                controlLight('Spot 3', spot3);
+                controlLight('Spot 4', spot4);
             });
 
 
