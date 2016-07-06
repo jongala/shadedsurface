@@ -132,7 +132,7 @@ ShadedSurface.prototype.initialize = function() {
 ShadedSurface.prototype.resize = function() {
     this.scene.meshes[0] = this.makeMesh();
     this.distortMesh(this.options.depthTransform);
-    this.renderer.setSize(this.options.$container.offsetWidth + 2 * this.options.distortion,
+    this.renderer.clear().setSize(this.options.$container.offsetWidth + 2 * this.options.distortion,
             this.options.$container.offsetHeight + 2 * this.options.distortion);
     return this;
 };
