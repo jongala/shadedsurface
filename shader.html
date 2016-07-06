@@ -47,10 +47,15 @@
             <!-- .panel --></div>
             <div id="controls">
                 <button onClick="show(login)">Login</button>
+                <button onClick="show(dog)">Dog</button>
+                <button onClick="show(corners)">Corners</button>
+                |
                 <button onClick="show(naturalWhite)">Natural White</button>
                 <button onClick="show(cream)">Cream</button>
                 <button onClick="show(slate)">Slate</button>
+                |
                 <button onClick="show(ocean)">Ocean</button>
+                <!--<button onClick="show(bright)">Bright</button> (Canvas only)-->
             </div>
         <!-- #page --></div>
 
@@ -105,6 +110,100 @@
                             x: function(w, h) {return w/2;},
                             y: function(w, h) {return -h/2;},
                             z: 0
+                        }
+                    }
+                ]
+            };
+
+            var dog = {
+                cellsize: 50,
+                materialAmbient: '#ffffff',
+                materialDiffuse: '#ffffff',
+                fillOpacity: 0.8,
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                lights: [
+                    // just ambient dark purple base
+                    {
+                        ambient: '#20292f',
+                        diffuse: '#000000',
+                        x: function(w, h) {return 0},
+                        y: function(w, h) {return 0},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    },
+                    // blue spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#3399cc',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    },
+                    // pink spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#ff0099',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    }
+                ]
+            };
+
+
+            var ch = 120;
+            var corners = {
+                cellsize: 50,
+                materialAmbient: '#ffffff',
+                materialDiffuse: '#ffffff',
+                fillOpacity: 0.8,
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                lights: [
+                    // blue spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#3399cc',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return -h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
+                        }
+                    },
+                    // pink spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#3399cc',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return -h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
+                        }
+                    },
+                    // yellow spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#ffcc00',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
+                        }
+                    },
+                    // pink spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#ff0099',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
                         }
                     }
                 ]
@@ -193,6 +292,79 @@
                 ]
             };
 
+            function drawColorLayer(surface) {
+                var ctx = surface.renderer.context;
+                var w = surface.getWidth();
+                var h = surface.getHeight();
+                var grd;
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.globalAlpha = 0.85;
+                ctx.globalCompositeOperation = "overlay";
+                grd = ctx.createLinearGradient(0, 0, w, 0);
+                grd.addColorStop(0, "#ff0099");
+                grd.addColorStop(0.5, "#3fa2df");
+                grd.addColorStop(1, "#ffcc00");
+                ctx.fillStyle = grd;
+                ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+            }
+
+            var bright = {
+                cellsize: 60,
+                materialAmbient: '#202122',
+                materialDiffuse: '#999999',
+                lights: [
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#ffffff',
+                        x: function(w, h) {return 0},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 350 * w/1300
+                        }
+                    }
+                ],
+                renderCallback: drawColorLayer
+            };
+
+            var bright2 = {
+                cellsize: 50,
+                depth: 3,
+                materialAmbient: '#000000',
+                materialDiffuse: '#ffffff',
+                lights: [
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#FFCC00',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
+                        }
+                    },
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#3399CC',
+                        x: function(w, h) {return 0},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
+                        }
+                    },
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#FF0099',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
+                        }
+                    }
+
+                ]
+            };
+
             function setSurface(opts) {
                 var settings = extend({
                     cellsize: 80,
@@ -205,16 +377,14 @@
                     strokeWidth: 1,
 
                     container: '#shadeMe',
-                    renderWith: 'canvas'
+                    renderWith: 'svg'
                 }, opts);
                 document.querySelector(settings.container).innerHTML = '';
                 demoSurface = new ShadedSurface(settings, settings.lights);
 
                 demoSurface.initialize()
                     .resize()
-                    .draw()
-                    .dark()
-                    .lightUp();
+                    .draw();
             }
             var show = setSurface;
 
