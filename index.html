@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Shader</title>
+        <style type="text/css">
+            body {
+                font-family: sans-serif;
+                background: #eee;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+
+            .panel {
+                background: #fff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            }
+
+            #shadeMe {
+                height: 100vh;
+                background: #000;
+            }
+
+            #controls {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                padding: 0.5em 1em;
+            }
+
+            #controls button {
+                padding: 0 1em;
+                line-height: 3em;
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 0.2em;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="page clearfix">
+            <div class="panel" id="shadeMe">
+            <!-- .panel --></div>
+        <!-- #page --></div>
+
+        <script src="script/fss.js"></script>
+        <script src="script/shadedSurface.js"></script>
+        <script src="3p/dat.gui.min.js"></script>
+
+        <script>
+            function extend(a, b){
+                for (key in b) {
+                    if (b.hasOwnProperty(key)) {
+                        a[key] = b[key]
+                    }
+                }
+                return a;
+            };
+
+            // Individual Lights
+
+            var ambient = {
+                ambient: '#20292f',
+                diffuse: '#000000',
+                x: function(w, h) {return w},
+                y: function(w, h) {return h},
+                z: function(w, h) {
+                    return 1
+                }
+            };
+
+            var spot1 = {
+                ambient: '#000000',
+                diffuse: '#ffcc00',
+                x: function(w, h) {return -w/2},
+                y: function(w, h) {return h/2},
+                z: 125
+            };
+
+            var spot2 = {
+                ambient: '#000000',
+                diffuse: '#ff0099',
+                x: function(w, h) {return w/2},
+                y: function(w, h) {return h/2},
+                z: 125
+            };
+
+            var spot3 = {
+                ambient: '#000000',
+                diffuse: '#3399cc',
+                x: function(w, h) {return -w/2},
+                y: function(w, h) {return -h/2},
+                z: 125
+            };
+
+            var spot4 = {
+                ambient: '#000000',
+                diffuse: '#774aa4',
+                x: function(w, h) {return w/2},
+                y: function(w, h) {return -h/2},
+                z: 125
+            };
+
+            // Surface Opts
+            var opts = {
+                cellsize: 50,
+                jitter: 0.3,
+                depth: 2.5,
+                materialAmbient: '#ffffff',
+                materialDiffuse: '#ffffff',
+                fillOpacity: 0.8,
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                lights: [
+                    ambient,
+                    spot1,
+                    spot2,
+                    spot3,
+                    spot4
+                ]
+            };
+
+            // Renderer
+            function setSurface(opts) {
+                var settings = extend({
+                    cellsize: 80,
+                    jitter: 0.3,
+                    depth: 2.5,
+                    materialAmbient: '#ffffff',
+                    materialDiffuse: '#ffffff',
+                    fillOpacity: 1,
+                    strokeOpacity: 1,
+                    strokeWidth: 1,
+
+                    container: '#shadeMe',
+                    renderWith: 'svg'
+                }, opts);
+                document.querySelector(settings.container).innerHTML = '';
+                demoSurface = new ShadedSurface(settings, settings.lights);
+
+                demoSurface.initialize()
+                    .resize()
+                    .draw();
+            }
+
+            // Draw defaults
+            setSurface(opts);
+
+            // re-render convenience
+            function redraw() {
+                setSurface(opts);
+            }
+
+            // Prepare click-to-place
+
+            var container = document.getElementById('shadeMe');
+
+            // get value or function value from a light
+            var pos = function(light, coord, w, h) {
+                if (typeof light[coord] === "number") {
+                    return light[coord];
+                } else {
+                    return light[coord](w, h);
+                }
+            }
+
+            container.addEventListener('click', function(e) {
+                var x = e.clientX;
+                var y = e.clientY;
+
+                var w = container.offsetWidth;
+                var h = container.offsetHeight;
+
+                var cx = x - w/2;
+                var cy = -(y - h/2);
+
+                var nearestD = Infinity;
+                var nearestIndex = 0;
+
+                opts.lights.forEach(function(light, i){
+                    var dx = cx - pos(light, 'x', w, h);
+                    var dy = cy - pos(light, 'y', w, h);
+                    var d = dx * dx + dy * dy;
+                    if (d < nearestD) {
+                        nearestD = d;
+                        nearestIndex = i;
+                    }
+                });
+
+                var nearestLight = opts.lights[nearestIndex];
+                nearestLight.x = cx;
+                nearestLight.y = cy;
+
+                setSurface(opts);
+            });
+
+
+            // utils for light controls
+            function setZ(light, z) {
+                light.z = z;
+                redraw();
+            }
+            function controlLight(folderName, light) {
+                var folder = gui.addFolder(folderName);
+                folder.addColor(light, 'diffuse')
+                    .name('color')
+                    .onChange(redraw);
+                folder.add(light, 'z').min(0).max(400)
+                    .name('height')
+                    .onChange(function(z){setZ(light, z)});
+                folder.open();
+            }
+
+            // setup DAT.GUI
+            var gui;
+
+            window.addEventListener('load', function(e){
+                gui = new dat.GUI();
+
+                var mat = gui.addFolder('Surface');
+
+                mat.add(opts, 'cellsize').min(20).max(200)
+                    .onChange(redraw);
+
+                mat.add(opts, 'jitter').min(0).max(0.5)
+                    .name('Distortion')
+                    .onChange(redraw);
+
+                mat.add(opts, 'depth').min(0).max(10)
+                    .name('Roughness')
+                    .onChange(redraw);
+
+                mat.add(opts, 'fillOpacity').min(0).max(1)
+                    .name('Faces')
+                    .onChange(redraw);
+
+                mat.add(opts, 'strokeOpacity').min(0).max(1)
+                    .name('Edges')
+                    .onChange(redraw);
+
+                mat.addColor(ambient, 'ambient')
+                    .name('Base color')
+                    .onChange(redraw);
+
+                mat.open();
+
+                controlLight('Spot 1', spot1);
+                controlLight('Spot 2', spot2);
+                controlLight('Spot 3', spot3);
+                controlLight('Spot 4', spot4);
+            });
+
+
+        </script>
+
+    </body>
+</html>

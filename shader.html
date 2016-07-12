@@ -1,0 +1,416 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Shader</title>
+        <style type="text/css">
+            body {
+                font-family: sans-serif;
+                background: #eee;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+
+            .panel {
+                background: #fff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            }
+
+            #shadeMe {
+                height: 100vh;
+                background: #000;
+            }
+
+            #controls {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                padding: 0.5em 1em;
+            }
+
+            #controls button {
+                padding: 0 1em;
+                line-height: 3em;
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 0.2em;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="page clearfix">
+        	<div class="panel" id="shadeMe">
+            <!-- .panel --></div>
+            <div id="controls">
+                <button onClick="show(login)">Login</button>
+                <button onClick="show(dog)">Dog</button>
+                <button onClick="show(corners)">Corners</button>
+                |
+                <button onClick="show(naturalWhite)">Natural White</button>
+                <button onClick="show(cream)">Cream</button>
+                <button onClick="show(slate)">Slate</button>
+                |
+                <button onClick="show(ocean)">Ocean</button>
+                <!--<button onClick="show(bright)">Bright</button> (Canvas only)-->
+            </div>
+        <!-- #page --></div>
+
+        <script src="script/fss.js"></script>
+        <script src="script/shadedSurface.js"></script>
+
+        <script>
+            function extend(a, b){
+                for (key in b) {
+                    if (b.hasOwnProperty(key)) {
+                        a[key] = b[key]
+                    }
+                }
+                return a;
+            };
+
+            var dogHeight = 100,
+                spotHeightCoef = 1.5;
+
+            var login = {
+                cellsize: 80,
+                jitter: 0.3,
+                depth: 2.5,
+                materialAmbient: '#777777',
+                materialDiffuse: '#bbbbbb',
+                fillOpacity: 0.8,
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                lights: [
+                    {
+                        // dog
+                        ambient: '#20292f',
+                        diffuse: '#256d94',
+                        x: -240,
+                        y: function(w, h) {return h / 2 - 150;},
+                        z: function(w, h) {return dogHeight * w/1300},
+                        start: {
+                            x: function(w, h) {return w/2;},
+                            y: function(w, h) {return h/2;},
+                            z: 0
+                        }
+
+                    },
+                    {
+                        // pink spot
+                        ambient: '#000000',
+                        diffuse: '#990058',
+                        x: function(w, h) {return w / 2 - 10;},
+                        y: 0,
+                        z: function(w, h) {return dogHeight * spotHeightCoef * w/1300},
+                        start: {
+                            x: function(w, h) {return w/2;},
+                            y: function(w, h) {return -h/2;},
+                            z: 0
+                        }
+                    }
+                ]
+            };
+
+            var dog = {
+                cellsize: 50,
+                materialAmbient: '#ffffff',
+                materialDiffuse: '#ffffff',
+                fillOpacity: 0.8,
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                lights: [
+                    // just ambient dark purple base
+                    {
+                        ambient: '#20292f',
+                        diffuse: '#000000',
+                        x: function(w, h) {return 0},
+                        y: function(w, h) {return 0},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    },
+                    // blue spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#3399cc',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    },
+                    // pink spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#ff0099',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    }
+                ]
+            };
+
+
+            var ch = 120;
+            var corners = {
+                cellsize: 50,
+                materialAmbient: '#ffffff',
+                materialDiffuse: '#ffffff',
+                fillOpacity: 0.8,
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                lights: [
+                    // blue spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#3399cc',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return -h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
+                        }
+                    },
+                    // pink spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#3399cc',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return -h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
+                        }
+                    },
+                    // yellow spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#ffcc00',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
+                        }
+                    },
+                    // pink spot
+                    {
+                        ambient: '#000000',
+                        diffuse: '#ff0099',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return ch * w/1300
+                        }
+                    }
+                ]
+            };
+
+            var naturalWhite = {
+                cellsize: 50,
+                materialAmbient: '#d6d9df',
+                materialDiffuse: '#444444',
+                lights: [
+                    {
+                        ambient: '#dddddd',
+                        diffuse: '#ffddaa',
+                        x: 0,
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    }
+                ]
+            };
+
+            var cream = {
+                cellsize: 50,
+                materialAmbient: '#f0e9d0',
+                materialDiffuse: '#393939',
+                lights: [
+                    {
+                        ambient: '#d0d0d0',
+                        diffuse: '#fff0e6',
+                        x: 0,
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    }
+                ]
+            };
+
+            var slate = {
+                cellsize: 60,
+                materialAmbient: '#202122',
+                materialDiffuse: '#444444',
+                lights: [
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#ffffff',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 350 * w/1300
+                        }
+                    }
+                ]
+            };
+
+            var ocean = {
+                cellsize: 50,
+                depth: 3,
+                materialAmbient: '#002244',
+                materialDiffuse: '#ffffff',
+                depthTransform: function(x, y, d, w, h) {
+                    // calculate depth based on radius from center point
+                    var r = Math.sqrt( Math.pow(x - w/2, 2) + Math.pow(y - h/2, 2) );
+                    return d * Math.sin(r * Math.PI/150) + d * 0.2 * (Math.random() - 0.5);
+                },
+                lights: [
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#0099cc',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 350 * w/1300
+                        }
+                    },
+                    {
+                        ambient: '#cccccc',
+                        diffuse: '#ffffff',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
+                        }
+                    }
+                ]
+            };
+
+            function drawColorLayer(surface) {
+                var ctx = surface.renderer.context;
+                var w = surface.getWidth();
+                var h = surface.getHeight();
+                var grd;
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.globalAlpha = 0.85;
+                ctx.globalCompositeOperation = "overlay";
+                grd = ctx.createLinearGradient(0, 0, w, 0);
+                grd.addColorStop(0, "#ff0099");
+                grd.addColorStop(0.5, "#3fa2df");
+                grd.addColorStop(1, "#ffcc00");
+                ctx.fillStyle = grd;
+                ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+            }
+
+            var bright = {
+                cellsize: 60,
+                materialAmbient: '#202122',
+                materialDiffuse: '#999999',
+                lights: [
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#ffffff',
+                        x: function(w, h) {return 0},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 350 * w/1300
+                        }
+                    }
+                ],
+                renderCallback: drawColorLayer
+            };
+
+            var bright2 = {
+                cellsize: 50,
+                depth: 3,
+                materialAmbient: '#000000',
+                materialDiffuse: '#ffffff',
+                lights: [
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#FFCC00',
+                        x: function(w, h) {return -w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
+                        }
+                    },
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#3399CC',
+                        x: function(w, h) {return 0},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
+                        }
+                    },
+                    {
+                        ambient: '#ffffff',
+                        diffuse: '#FF0099',
+                        x: function(w, h) {return w/2},
+                        y: function(w, h) {return h/2},
+                        z: function(w, h) {
+                            return 150 * w/1300
+                        }
+                    }
+
+                ]
+            };
+
+            function setSurface(opts) {
+                var settings = extend({
+                    cellsize: 80,
+                    jitter: 0.3,
+                    depth: 2.5,
+                    materialAmbient: '#ffffff',
+                    materialDiffuse: '#ffffff',
+                    fillOpacity: 1,
+                    strokeOpacity: 1,
+                    strokeWidth: 1,
+
+                    container: '#shadeMe',
+                    renderWith: 'svg'
+                }, opts);
+                document.querySelector(settings.container).innerHTML = '';
+                demoSurface = new ShadedSurface(settings, settings.lights);
+
+                demoSurface.initialize()
+                    .resize()
+                    .draw();
+            }
+            var show = setSurface;
+
+            //setSurface(login);
+
+            inspect = function() {
+                vertices = demoSurface.scene.meshes[0].geometry.vertices;
+                v = vertices[Math.floor(vertices.length/3)];
+                console.log(v.position);
+            }
+
+            ShadedSurface.prototype.shimmer = function(play) {
+                var self = this;
+                function do_shimmer() {
+                    if (self.playing) {
+                        self.resize().draw();
+                        window.requestAnimationFrame(do_shimmer);
+                    }
+                }
+                this.playing = play !== false;
+                if (this.playing) do_shimmer();
+            }
+
+
+
+        </script>
+
+    </body>
+</html>
