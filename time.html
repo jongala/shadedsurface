@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>ShaderTime</title>
+        <style type="text/css">
+            body {
+                font-family: sans-serif;
+                background: #eee;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+
+            .panel {
+                background: #fff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            }
+
+            #shadeMe {
+                height: 100vh;
+                background: #000;
+            }
+
+            #controls {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                padding: 0.5em 1em;
+            }
+
+            #controls button {
+                padding: 0 1em;
+                line-height: 3em;
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.25);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 0.2em;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="page clearfix">
+        	<div class="panel" id="shadeMe">
+            <!-- .panel --></div>
+            <div id="controls"></div>
+        <!-- #page --></div>
+
+        <script src="script/fss.js"></script>
+        <script src="script/shadedSurface.js"></script>
+
+        <script>
+            function extend(a, b){
+                for (key in b) {
+                    if (b.hasOwnProperty(key)) {
+                        a[key] = b[key]
+                    }
+                }
+                return a;
+            };
+
+
+            function setSurface(opts) {
+                var settings = extend({
+                    cellsize: 50,
+                    jitter: 0.3,
+                    depth: 2.5,
+                    materialAmbient: '#ffffff',
+                    materialDiffuse: '#ffffff',
+                    fillOpacity: 0.8,
+                    strokeOpacity: 1,
+                    strokeWidth: 1,
+
+                    container: '#shadeMe',
+                    renderWith: 'canvas'
+                }, opts);
+                document.querySelector(settings.container).innerHTML = '';
+                demoSurface = new ShadedSurface(settings, settings.lights);
+
+                demoSurface.initialize()
+                    .resize()
+                    .draw();
+            }
+            var show = setSurface;
+
+
+            var el = document.getElementById('shadeMe');
+            var elw = el.offsetWidth;
+            var elh = el.offsetHeight;
+
+            function generateLights(x, y) {
+                if (x === undefined) x = 0;
+                if (y === undefined) y = 0;
+
+
+                //Math.sin(Math.PI * x/w + Math.PI/2);
+                // sin-squared normalized factor for progress across day,
+                // here modeled for x-pos across element
+                var dayFactor = function() {
+                    return Math.pow(Math.sin(Math.PI/2 + Math.PI * x/elw), 2);
+                }
+
+                var ambient = {
+                        ambient: '#20292f',
+                        diffuse: '#000000',
+                        x: function(w, h) {return 0},
+                        y: function(w, h) {return 0},
+                        z: function(w, h) {
+                            return 300 * w/1300
+                        }
+                    };
+                var lights = [ambient];
+
+                var bright = {
+                    ambient: '#000000',
+                    diffuse: '#3399cc',
+                    x: function(w, h) {return x * 1.25},
+                    y: function(w, h) {return -h/4 + h*3/4 * dayFactor()},
+                    z: function(w, h) {
+                        return (100 + 200 * dayFactor()) * w/1300
+                    }
+                }
+
+                var counter = {
+                    ambient: '#000000',
+                    diffuse: '#ff0099',
+                    x: function(w, h) {return -x*1.2},
+                    y: function(w, h) {return -h * 0.8},
+                    z: function(w, h) {
+                        return (200 + 100 * dayFactor()) * w/1300
+                    }
+                }
+
+                lights.push(bright);
+                lights.push(counter);
+
+                return {lights: lights};
+            }
+
+            show(generateLights(0,0));
+
+           
+
+            var drawAtPoint = function(e) {
+                show(generateLights(e.clientX - elw/2, - (e.clientY - elh/2)));
+            }
+
+
+            // drag with mouse
+            el.addEventListener('mousedown', function(e){
+                el.addEventListener('mousemove', drawAtPoint);
+            });
+            // unbind drag handler, draw once to handle clicks
+            el.addEventListener('mouseup', function(e){
+                el.removeEventListener('mousemove', drawAtPoint);
+                drawAtPoint(e);
+            });
+
+        </script>
+
+    </body>
+</html>
