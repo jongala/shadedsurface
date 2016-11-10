@@ -131,16 +131,16 @@
 
             // My utils
 
-            function toHex(rgb) {
+            function toHex(rgbArray) {
                 function fromN(N) {
                     var h = Number(N).toString(16);
                     // zero pad single digit values for proper hex
                     return (h.length === 1) ? "0" + h : h;
                 }
-                return '#' + fromN(rgb.r) + fromN(rgb.g) + fromN(rgb.b)
+                return '#' + fromN(rgbArray[0]) + fromN(rgbArray[1]) + fromN(rgbArray[2])
             }
 
-            function toRgb(hex) {
+            function toRgbArray(hex) {
                 if (hex[0] === '#') {
                     hex = hex.slice(1);
                 }
@@ -152,11 +152,7 @@
                 function toN(hexFrag) {
                     return parseInt(hexFrag, 16)
                 }
-                return {
-                    r: toN(hex.slice(0,2)),
-                    g: toN(hex.slice(2,4)),
-                    b: toN(hex.slice(4,6))
-                }
+                return [toN(hex.slice(0,2)), toN(hex.slice(2,4)), toN(hex.slice(4,6))];
             }
 
 
@@ -212,11 +208,12 @@
                 }
 
                 // shift ambient bg color
-                var bgColor = toRgb('#20292f');
-                bgColor = rgbToHsl(bgColor.r, bgColor.g, bgColor.b);
-                bgColor[0] -= (x/elw * 0.4);
+                var bgColor = toRgbArray('#20292f');
+                bgColor = rgbToHsl(bgColor[0], bgColor[1], bgColor[2]);
+                // hue shift based on x
+                bgColor[0] -= (x / elw) * 0.4;
                 bgColor = hslToRgb(bgColor[0], bgColor[1], bgColor[2]).map(Math.round);
-                bgColor = toHex({r: bgColor[0], g:bgColor[1], b:bgColor[2]});
+                bgColor = toHex(bgColor);
 
                 var ambient = {
                         ambient: bgColor,
@@ -259,7 +256,6 @@
                 show(generateLights(e.clientX - elw/2, - (e.clientY - elh/2)));
             }
 
-
             // drag with mouse
             el.addEventListener('mousedown', function(e){
                 el.addEventListener('mousemove', drawAtPoint);
@@ -278,7 +274,7 @@
 
             var t = (now - start)/86400000;
 
-            drawAtPoint({ clientX: (1 - t) * elw });
+            drawAtPoint({ clientX: (1 - t) * elw, clientY: 0 });
 
         </script>
 
