@@ -212,9 +212,8 @@
                 }
 
                 // shift ambient bg color
-                var bgColor = '#20292f';
-                bgColor = toRgb(bgColor);
-                bgColor =  rgbToHsl(bgColor.r, bgColor.g, bgColor.b);
+                var bgColor = toRgb('#20292f');
+                bgColor = rgbToHsl(bgColor.r, bgColor.g, bgColor.b);
                 bgColor[0] -= (x/elw * 0.4);
                 bgColor = hslToRgb(bgColor[0], bgColor[1], bgColor[2]).map(Math.round);
                 bgColor = toHex({r: bgColor[0], g:bgColor[1], b:bgColor[2]});
@@ -236,7 +235,7 @@
                     x: function(w, h) {return x * 1.25},
                     y: function(w, h) {return -h/4 + h*3/4 * dayFactor()},
                     z: function(w, h) {
-                        return (100 + 200 * dayFactor()) * w/1300
+                        return (100 + 150 * dayFactor()) * w/1300
                     }
                 }
 
@@ -270,6 +269,16 @@
             el.addEventListener('mouseup', function(e){
                 el.removeEventListener('mousemove', drawAtPoint);
             });
+
+            var now = new Date();
+            var start = new Date();
+            start.setHours(0);
+            start.setMinutes(0);
+            start.setSeconds(0);
+
+            var t = (now - start)/86400000;
+
+            drawAtPoint({ clientX: (1 - t) * elw });
 
         </script>
 
