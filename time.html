@@ -229,8 +229,8 @@
                 var bright = {
                     ambient: '#000000',
                     diffuse: '#3399cc',
-                    x: function(w, h) {return x * 1.25},
-                    y: function(w, h) {return -h/4 + h*3/4 * dayFactor()},
+                    x: function(w, h) {return x * 1.5},
+                    y: function(w, h) {return -h/4 + (h * 3/4) * dayFactor()},
                     z: function(w, h) {
                         return (100 + 150 * dayFactor()) * w/1300
                     }
@@ -239,7 +239,7 @@
                 var counter = {
                     ambient: '#000000',
                     diffuse: '#ff0099',
-                    x: function(w, h) {return -x*1.2},
+                    x: function(w, h) {return -x * 1.1},
                     y: function(w, h) {return -h * 0.8},
                     z: function(w, h) {
                         return (300 - 100 * dayFactor()) * w/1300
