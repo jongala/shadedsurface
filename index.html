@@ -125,7 +125,7 @@
             };
 
             // Renderer
-            function setSurface(opts) {
+            function setSurface(opts, animate) {
                 var settings = extend({
                     cellsize: 80,
                     jitter: 0.3,
@@ -137,7 +137,7 @@
                     strokeWidth: 1,
 
                     container: '#shadeMe',
-                    renderWith: 'svg'
+                    renderWith: 'canvas'
                 }, opts);
                 document.querySelector(settings.container).innerHTML = '';
                 demoSurface = new ShadedSurface(settings, settings.lights);
@@ -145,14 +145,15 @@
                 demoSurface.initialize()
                     .resize()
                     .draw();
+                if (animate) demoSurface.lightUp();
             }
 
             // Draw defaults
-            setSurface(opts);
+            setSurface(opts, true);
 
             // re-render convenience
             function redraw() {
-                setSurface(opts);
+                setSurface(opts, false);
             }
 
             // Prepare click-to-place

@@ -377,14 +377,15 @@
                     strokeWidth: 1,
 
                     container: '#shadeMe',
-                    renderWith: 'svg'
+                    renderWith: 'canvas'
                 }, opts);
                 document.querySelector(settings.container).innerHTML = '';
                 demoSurface = new ShadedSurface(settings, settings.lights);
 
                 demoSurface.initialize()
                     .resize()
-                    .draw();
+                    .draw()
+                    .lightUp();
             }
             var show = setSurface;
 
